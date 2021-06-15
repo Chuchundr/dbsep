@@ -1,0 +1,73 @@
+{% extends 'base.html'%}
+{% load static %}
+
+{% block content %}
+<div class="main-content" id="panel">
+    <!-- Header -->
+    <div class="header bg-primary pb-6">
+        <div class="container-fluid">
+            <div class="header-body">
+                <div class="row">
+                    {% for db in db_list %}
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card card-stats"
+                             onclick="location.href='{% url 'database_separator:db' pk=db.id %}'"
+                             style="cursor: pointer;">
+                            <!-- Card body -->
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col">
+                                        <span class="h2 font-weight-bold mb-0">{{db.name}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid mt--6">
+        <div class="row">
+            <div class="card col-md-12">
+                <div class="card-header border-0">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h3 class="mb-0">Активность репликации</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <!-- Projects table -->
+                    <table class="table align-items-center table-flush">
+                        <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Название</th>
+                            <th scope="col">Активен</th>
+                        </tr>
+                        </thead>
+                        {% for slot in slot_list %}
+                        <tbody>
+                        <tr>
+                            <td>
+                                {{slot.name}}
+                            </td>
+                            <td>
+                                {% if slot.active %}
+                                <span class="fas fa-check-square" style='font-size:24px;color:green'></span>
+                                {% else %}
+                                <span class="fas fa-window-close" style='font-size:24px;color:red'></span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        </tbody>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
