@@ -17,7 +17,7 @@ class IndexTemplateView(TemplateView):
     def get_context_data(self):
         context = super().get_context_data()
         context['db_list'] = DataBase.objects.all()
-        context['slot_list'] = ReplicationSlot.objects.all()
+        context['slot_list'] = ReplicationSlot.objects.all().order_by('active')
         return context
 
 

@@ -15,6 +15,6 @@ app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
     'check replication slots': {
-        'task': 'database_separator.tasks.check_replication_slots', 'schedule': 300.0
+        'task': 'database_separator.tasks.check_replication_slots', 'schedule': 20.0
     }
 }
