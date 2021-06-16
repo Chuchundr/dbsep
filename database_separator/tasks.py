@@ -20,7 +20,6 @@ def check_replication_slots(self):
         repl_slot.save()
         if not slot[1]:
             inactive_slots.append(slot[0])
-    print(inactive_slots)
     if bool(inactive_slots):
         subject = Header("Replication. Notify Exception." 'utf-8')
         slots = [', '.join(key) for key in inactive_slots] if len(inactive_slots) > 1 else inactive_slots[0]
