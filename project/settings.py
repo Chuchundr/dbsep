@@ -89,6 +89,14 @@ DATABASES = {
     },
 }
 
+DATABASE_CONNECTION = {
+        'user': os.getenv('DATABASE_USERNAME'),
+        'port': os.getenv('DATABASE_PORT'),
+        'host': os.getenv('DATABASE_HOST'),
+        'database': '',
+        'password': os.getenv('DATABASE_PASSWORD')
+    }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators

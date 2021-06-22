@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="main-content" id="panel">
+    <div class="header bg-primary pb-6">
+    </div>
+    <div class="container-fluid mt--6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Набор предварительных действий</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive" id="check-table">
+                    <table class="table">
+                        <tbody>
+                        <tr>
+                            <td>
+                                <strong>
+                                    Создай БД для нового приложения (имя базы должно совпадать с названием приложения)
+                                </strong>
+                            </td>
+                            <td>
+                                <input type="checkbox">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>
+                                    Проведи миграции (начиная с office, чтобы репликация не сломалась)
+                                </strong>
+                            </td>
+                            <td>
+                                <input type="checkbox">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>
+                                    Добавь БД в список баз в файле настроек BPM Liberty
+                                </strong>
+                            </td>
+                            <td>
+                                <input type="checkbox">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>
+                                    Добавь роутер для нового приложения
+                                </strong>
+                            </td>
+                            <td>
+                                <input type="checkbox">
+                            </td>
+                        </tr>
+                        </tbody>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <a class="btn btn-primary active" href="{% url 'database_separator:separate' %}"
+                                   id="check-button">
+                                    Начать
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

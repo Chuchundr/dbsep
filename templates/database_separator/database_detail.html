@@ -14,22 +14,32 @@
                             </div>
                         </div>
                     </div>
-                    <div class="table-responsive">
+                    <div class="table-responsive table-hover">
                         <!-- Projects table -->
                         <table class="table align-items-center table-flush">
                             <thead class="thead-light">
                             <tr>
                                 <th scope="col">Название</th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
                             {% for pub in object.publications.all %}
-                            <tr>
+                            <tr data-toggle="collapse" id="row1" data-target=".row1">
                                 <td>
-                                    {{ pub.name }}
+                                    <strong>{{ pub.name }}</strong>
                                 </td>
-                                {% endfor %}
+                                <td>
+                                    <button class="btn btn-sm"><i class="ni ni-bullet-list-67"></i></button>
+                                </td>
                             </tr>
+                            {% for table in pub.tables.all %}
+                            <tr class="collapse row1">
+                                <td>{{table.name}}</td>
+                                <td></td>
+                            </tr>
+                            {% endfor %}
+                            {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -56,7 +66,7 @@
                             {% for sub in object.subscriptions.all %}
                             <tr>
                                 <td>
-                                    {{ sub.name }}
+                                    <strong>{{ sub.name }}</strong>
                                 </td>
                                 {% endfor %}
                             </tr>
@@ -86,7 +96,7 @@
                             {% for slot in object.replication_slots.all %}
                             <tr>
                                 <td>
-                                    {{ slot.name }}
+                                    <strong>{{ slot.name }}</strong>
                                 </td>
                                 {% endfor %}
                             </tr>
