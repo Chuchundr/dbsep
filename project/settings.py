@@ -97,6 +97,9 @@ DATABASE_CONNECTION = {
         'password': os.getenv('DATABASE_PASSWORD')
     }
 
+MAIN_DB = 'office'
+VEHICLES_DB = 'vehicles'
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators

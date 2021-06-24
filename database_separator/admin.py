@@ -1,10 +1,15 @@
 from django.contrib import admin
-from .models import DataBase, Publication, Subscription, ReplicationSlot, PubTables
+from .models import DataBase, Publication, Subscription, ReplicationSlot, PubTables, SequenceRange
 
 
 class TablesTabularInline(admin.TabularInline):
     model = PubTables
     extra = 0
+
+
+@admin.register(SequenceRange)
+class SequenceRangeAdmin(admin.ModelAdmin):
+    list_display = ['database', 'start', 'max' ]
 
 
 @admin.register(DataBase)

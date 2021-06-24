@@ -2,7 +2,7 @@ import traceback
 
 from psycopg2.errors import InFailedSqlTransaction
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.views import LoginView
 from django.views.generic import ListView, TemplateView, DetailView, FormView
 from django.urls import reverse_lazy
@@ -42,12 +42,15 @@ class SeparationView(FormView):
     def form_valid(self, form):
         if form.is_valid():
             app_name = form.cleaned_data.get('app_name')
-            action_set = ActionSet(app_name)
+            db_name = form.cleaned_data.get('db_name')
+            action_set = ActionSet(app_name=app_name, db_name=db_name)
             try:
-                action_set.do()
-            except InFailedSqlTransaction as e:
-                context = {'error': str(e)}
+                action_set.start()
+            except Exception:
+                tb = traceback.format_exc()
+                context = {'error': str(tb)}
                 return render(self.request, 'database_separator/fail.html', context)
+        return redirect(self.success_url)
 
 
 class CheckView(TemplateView):

@@ -63,16 +63,17 @@ class SequenceRange(models.Model):
     max = models.IntegerField('Конечное значение')
     database = models.OneToOneField(DataBase, on_delete=models.CASCADE, blank=True, verbose_name='БД',
                                  related_name='sequence')
+    number = models.PositiveIntegerField('Порядковый номер', blank=True, null=True)
 
     def __str__(self):
         return f'Диапазон для {self.database}'
 
     @classmethod
     def get_next_range(cls):
-        last_range = cls.objects.order_by('id').last()
+        last_range = cls.objects.order_by('number').last()
         start = last_range.start/10**16
         max = last_range.max/10**16
-        return {'start': start + 2*10**16, 'max': max + 2*10**16}
+        return {'start': (start + 2)*10**16, 'max': (max + 2)*10**16}
 
     class Meta:
         verbose_name = 'Диапазон для БД'

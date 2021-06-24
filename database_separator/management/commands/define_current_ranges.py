@@ -13,13 +13,15 @@ class Command(BaseCommand):
                 "alter table database_separator_sequencerange alter column max type bigint using max::bigint;"
             )
         for db in DataBase.objects.all():
+            if db.name == 'office':
+                SequenceRange.objects.update_or_create(start=0, max=(1*10**16)-1, database=db, number=1)
             if db.name == 'pass':
-                SequenceRange.objects.update_or_create(start=1**10*16, max=3**10*16-1, database=db)
+                SequenceRange.objects.update_or_create(start=1*10**16, max=(3*10**16)-1, database=db, number=2)
             if db.name == 'vehicles':
-                SequenceRange.objects.update_or_create(start=3**10*16, max=5**10*16-1, database=db)
+                SequenceRange.objects.update_or_create(start=3*10**16, max=(5*10**16)-1, database=db, number=3)
             if db.name == 'cellular':
-                SequenceRange.objects.update_or_create(start=6**10*16, max=7*10*16-1, database=db)
+                SequenceRange.objects.update_or_create(start=6*10**16, max=(7*10**16)-1, database=db, number=4)
             if db.name == 'documentflow':
-                SequenceRange.objects.update_or_create(start=8*10**16, max=9*10**16-1, database=db)
+                SequenceRange.objects.update_or_create(start=8*10**16, max=(9*10**16)-1, database=db, number=5)
             if db.name == 'provgov':
-                SequenceRange.objects.update_or_create(start=10*10**16, max=11*10**16-1, database=db)
+                SequenceRange.objects.update_or_create(start=10*10**16, max=(11*10**16)-1, database=db, number=6)
