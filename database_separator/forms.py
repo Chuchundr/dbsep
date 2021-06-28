@@ -14,6 +14,8 @@ class SeparationForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
+        if DataBase.objects.filter(name=cleaned_data.get('db_name')).exists():
+            raise forms.ValidationError({'db_name': 'Для указанной базы уже проведены настройки репликации'})
         try:
             options = connect(cleaned_data.get('db_name'))
             pgconnect(**options)
