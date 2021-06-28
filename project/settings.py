@@ -115,7 +115,7 @@ ROOT_PATH = os.path.join(os.path.dirname(BASE_DIR), 'run')
 LOG_PATH = os.environ.get('LOG_PATH', ROOT_PATH)
 
 REDIS_HOST = 'localhost'
-REDIS_PORT = '6379'
+REDIS_PORT = '6380'
 CELERY_TIMEZONE = "Asia/Tashkent"
 CELERY_BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}

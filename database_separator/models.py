@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.utils import ProgrammingError
 
 
 class DataBase(models.Model):
@@ -70,10 +71,13 @@ class SequenceRange(models.Model):
 
     @classmethod
     def get_next_range(cls):
-        last_range = cls.objects.order_by('number').last()
-        start = last_range.start/10**16
-        max = last_range.max/10**16
-        return {'start': (start + 2)*10**16, 'max': (max + 2)*10**16}
+        try:
+            last_range = cls.objects.order_by('number').last()
+            start = last_range.start/10**16
+            max = last_range.max/10**16
+            return {'start': (start + 2)*10**16, 'max': (max + 2)*10**16 - 1}
+        except:
+            return {'start': '', 'max': ''}
 
     class Meta:
         verbose_name = 'Диапазон для БД'
