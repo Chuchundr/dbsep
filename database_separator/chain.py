@@ -160,13 +160,13 @@ class CreateSubscription(BaseHandler, Executor):
     def handle(self):
         try:
             self._cursor.execute(f"""create subscription {self.subname}
-                                 connection 'host={self.sub_connection['host']}
-                                 user={self.sub_connection['user']}
-                                 port={self.sub_connection['port']}
-                                 dbname={self.sub_connection['database']}
-                                 password={self.sub_connection['password']}'
-                                 publication {self.pubname}
-                                 with (create_slot=false, slot_name='{self.slot_name}', copy_data={self.copy_data})""")
+                                connection 'host={self.sub_connection['host']}
+                                user={self.sub_connection['user']}
+                                port={self.sub_connection['port']}
+                                dbname={self.sub_connection['database']}
+                                password={self.sub_connection['password']}'
+                                publication {self.pubname}
+                                with (create_slot=false, slot_name='{self.slot_name}', copy_data={self.copy_data})""")
             self._connection.commit()
         except Exception as e:
             self._connection.rollback()
@@ -216,9 +216,12 @@ class AddTablesToPub(BaseHandler, Executor):
 
 
 class DropSubscription(BaseHandler, Executor):
-    def __init__(self, subname, **connection):
+    def __init__(self, pubdb, subdb, option=None, **connection):
         super().__init__(**connection)
-        self.subname = subname
+        if option:
+            self.subname = f'{subdb}_{pubdb}_{option}_sub'
+        else:
+            self.subname = f'{subdb}_{pubdb}_sub'
 
     def handle(self):
         try:

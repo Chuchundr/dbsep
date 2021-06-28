@@ -45,7 +45,7 @@ class SeparationView(FormView):
             db_name = form.cleaned_data.get('db_name')
             action_set = ActionSet(app_name=app_name, db_name=db_name)
             try:
-                action_set.start()
+                action_set.execute_script()
             except Exception:
                 tb = traceback.format_exc()
                 context = {'error': str(tb)}

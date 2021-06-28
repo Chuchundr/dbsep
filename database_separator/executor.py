@@ -1,5 +1,6 @@
 import psycopg2
 import logging
+from psycopg2 import extensions
 from psycopg2.errors import InFailedSqlTransaction, \
     DuplicateObject, UndefinedTable, InvalidTextRepresentation, ActiveSqlTransaction
 
@@ -12,6 +13,7 @@ class Executor:
         и cursor, для запуска команд
         """
         self._connection = psycopg2.connect(**connection)
+        self._connection.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT)
         self._cursor = self._connection.cursor()
 
     def raise_error(self, error):

@@ -25,7 +25,7 @@
                             </thead>
                             <tbody>
                             {% for pub in object.publications.all %}
-                            <tr data-toggle="collapse" id="row1" data-target=".row1">
+                            <tr data-toggle="collapse" id="row2" data-target=".row2">
                                 <td>
                                     <strong>{{ pub.name }}</strong>
                                 </td>
@@ -34,7 +34,7 @@
                                 </td>
                             </tr>
                             {% for table in pub.tables.all %}
-                            <tr class="collapse row1">
+                            <tr class="collapse row2">
                                 <td>{{table.name}}</td>
                                 <td></td>
                             </tr>

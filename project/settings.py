@@ -89,14 +89,6 @@ DATABASES = {
     },
 }
 
-DATABASE_CONNECTION = {
-        'user': os.getenv('DATABASE_USERNAME'),
-        'port': os.getenv('DATABASE_PORT'),
-        'host': os.getenv('DATABASE_HOST'),
-        'database': '',
-        'password': os.getenv('DATABASE_PASSWORD')
-    }
-
 MAIN_DB = 'office'
 VEHICLES_DB = 'vehicles'
 
