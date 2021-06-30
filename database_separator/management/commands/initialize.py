@@ -102,12 +102,12 @@ class Command(BaseCommand):
         pub_tables = self.get_publication_tables()
 
         for db in databases:
-            models.DataBase.objects.get_or_create(name=db)
+            models.DataBase.objects.update_or_create(name=db)
 
         for db, subs in subs.items():
             for sub in subs:
                 try:
-                    models.Subscription.objects.get_or_create(
+                    models.Subscription.objects.update_or_create(
                         name=sub,
                         database=models.DataBase.objects.get(name=db)
                     )
@@ -116,7 +116,7 @@ class Command(BaseCommand):
 
         for db, pubs in pubs.items():
             for pub in pubs:
-                models.Publication.objects.get_or_create(
+                models.Publication.objects.update_or_create(
                     name=pub,
                     database=models.DataBase.objects.get(name=db)
                 )
@@ -124,7 +124,7 @@ class Command(BaseCommand):
         for db, slots in slots.items():
             for slot in slots:
                 try:
-                    models.ReplicationSlot.objects.get_or_create(
+                    models.ReplicationSlot.objects.update_or_create(
                         name=slot[0],
                         database=models.DataBase.objects.get(name=db),
                         active=slot[1]
@@ -135,7 +135,7 @@ class Command(BaseCommand):
         for pub, tables in pub_tables.items():
             for tab in tables:
                 publication = models.Publication.objects.get(name=pub)
-                table = models.PubTables.objects.get_or_create(pub=publication, name=tab)
+                table = models.PubTables.objects.update_or_create(pub=publication, name=tab)
                 if not publication.tables.get(name=table[0].name):
                     pub.tables.create(pub=pub, name=table)
         self.delete_unnecessary_dbs()
