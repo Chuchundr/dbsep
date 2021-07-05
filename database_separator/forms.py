@@ -7,11 +7,21 @@ from .models import DataBase
 
 
 class SeparationForm(forms.Form):
+    """
+    Форма для раздления
+    Поля:
+        app_name - название приложения
+        db_name - название БД
+    """
 
     app_name = forms.CharField(label='Название приложения', required=True)
     db_name = forms.CharField(label='Имя БД', required=True)
 
     def clean(self):
+        """
+        Проверка на валидацию
+        :return:
+        """
         cleaned_data = super().clean()
         if DataBase.objects.filter(name=cleaned_data.get('db_name')).exists():
             raise forms.ValidationError({'db_name': 'Для указанной базы уже проведены настройки репликации'})

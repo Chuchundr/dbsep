@@ -18,7 +18,7 @@ class Executor:
         self._connection.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT)
         self._cursor = self._connection.cursor()
 
-    def execute(self, query):
+    def execute(self, query: str):
         """
         функция для выполнения запросов
         :param query: запрос
@@ -36,7 +36,7 @@ class Executor:
         else:
             self._connection.commit()
 
-    def raise_error(self, error):
+    def raise_error(self, error: Exception):
         """
         метод для обработки ошибок,
         откатывает транзакцию и закрывает соединение
@@ -50,7 +50,7 @@ class Executor:
         self._connection.close()
         self._cursor.close()
 
-    def _get_app_tables(self, appname):
+    def _get_app_tables(self, appname: str) -> list:
         """
         Возвращает список таблиц для заданного приложения
         :param appname: название приложения
@@ -60,7 +60,7 @@ class Executor:
                              f"where table_name like '{appname}%'")
         return [table[0] for table in self._cursor.fetchall()]
 
-    def _get_field_type_dict(self, fields_list):
+    def _get_field_type_dict(self, fields_list: list) -> dict:
         """
         возвращает словарь вида {'название поля': [список таблиц, где есть данное поле]}
         :param fields_list: список с названиями полей
@@ -80,7 +80,7 @@ class Executor:
                 types_dict[rec[0]] = [rec[1], ]
         return types_dict
 
-    def _get_next_id_value(self, app):
+    def _get_next_id_value(self, app: str) -> dict:
         """
         возвращает следующее значение id для таблиц заданного приложения вида {'название таблицы': число}
         :param app: название приложения
@@ -109,7 +109,7 @@ class Executor:
                 pass
         return sequences
 
-    def cast(self, value, type):
+    def cast(self, value: str, type: str) -> int:
         """
         преобразование числа с экспоненциального вида в обычный
         :param value: значение числа
@@ -122,7 +122,7 @@ class Executor:
         return self._cursor.fetchone()[0]
 
     @staticmethod
-    def add_sequence_range(db_name, start, max):
+    def add_sequence_range(db_name: str, start: int, max: int):
         DataBase.objects.get_or_create(name=db_name)
         number = SequenceRange.objects.order_by('number').last().number + 1
         SequenceRange.objects.create(database=db_name, start=start, max=max, number=number)

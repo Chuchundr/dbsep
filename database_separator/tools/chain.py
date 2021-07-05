@@ -18,6 +18,7 @@ class BaseHandler(Executor):
         return None
 
 
+# классы команды
 class ChangeDataType(BaseHandler, Executor):
 
     def __init__(self, type:str, fields_list: list, **connection):

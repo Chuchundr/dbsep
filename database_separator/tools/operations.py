@@ -50,7 +50,9 @@ def connect(db_name: str) -> dict:
 
 
 class ActionSet:
-
+    """
+    Сценарий
+    """
     _sequence_range = SequenceRange.get_next_range()
 
     def __init__(self, app_name, db_name):
@@ -233,6 +235,9 @@ class ActionSet:
 
 
 class BackupActionSet:
+    """
+    Сценарий отката
+    """
     def __init__(self, app_name, db_name):
         self.app_conn = connect(db_name)
         self.main_conn = connect(settings.MAIN_DB)

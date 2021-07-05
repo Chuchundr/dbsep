@@ -15,13 +15,20 @@ from .tools import ActionSet, BackupActionSet
 
 
 class MyLoginView(LoginView):
-
+    """
+    Вьюшка для авторизации
+    """
     def get_success_url(self):
         return reverse_lazy('index')
 
 
 class IndexTemplateView(TemplateView):
-
+    """
+    Вьюшка для главной страницы
+    контекст:
+        db_list - список БД
+        slot_list - список слотов
+    """
     def get_context_data(self):
         context = super().get_context_data()
         context['db_list'] = DataBase.objects.all()
@@ -30,11 +37,17 @@ class IndexTemplateView(TemplateView):
 
 
 class DataBaseDetailView(DetailView):
+    """
+    Детализация сущностей в БД
+    """
     model = DataBase
     template_name = 'database_separator/database_detail.html'
 
 
 class SeparationView(FormView):
+    """
+    Вьюшка для разделения
+    """
     form_class = SeparationForm
     success_url = reverse_lazy('index')
     template_name = 'database_separator/separate.html'
@@ -56,4 +69,7 @@ class SeparationView(FormView):
 
 
 class CheckView(TemplateView):
+    """
+    Вспомогательная вьюшка для проверки выполнения предварительных действий
+    """
     template_name = 'database_separator/check.html'
