@@ -124,11 +124,12 @@ class Command(BaseCommand):
         for db, slots in slots.items():
             for slot in slots:
                 try:
-                    models.ReplicationSlot.objects.update_or_create(
+                    my_slot = models.ReplicationSlot.objects.update_or_create(
                         name=slot[0],
-                        database=models.DataBase.objects.get(name=db),
-                        active=slot[1]
-                    )
+                        database=models.DataBase.objects.get(name=db)
+                    )[0]
+                    my_slot.active = slot[1]
+                    my_slot.save()
                 except ObjectDoesNotExist:
                     pass
 
@@ -139,4 +140,3 @@ class Command(BaseCommand):
                 if not publication.tables.get(name=table[0].name):
                     pub.tables.create(pub=pub, name=table)
         self.delete_unnecessary_dbs()
-

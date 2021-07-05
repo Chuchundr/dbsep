@@ -1,7 +1,11 @@
 from .executor import Executor
+from psycopg2.errors import UndefinedObject
 
 
 class BaseHandler(Executor):
+    """
+    Класс для реализации паттерна цепочка обязанностей
+    """
     _next_handler = None
 
     def set_next(self, handler):
@@ -22,19 +26,12 @@ class ChangeDataType(BaseHandler, Executor):
         self.type = type
 
     def handle(self):
-        try:
-            for field, tables in self.tables.items():
-                for table in tables:
-                    self._cursor.execute(
-                        f"""alter table {table} alter column {field} type {self.type} USING {field}::{self.type}"""
-                    )
-            self._connection.commit()
-        except Exception as e:
-            self._connection.rollback()
-            self.close()
-            self.raise_error(e)
-        finally:
-            self.close()
+        for field, tables in self.tables.items():
+            for table in tables:
+                super().execute(
+                    f"alter table {table} alter column {field} type {self.type} USING {field}::{self.type}"
+                )
+        self.close()
         return super().handle()
 
 
@@ -45,17 +42,9 @@ class Truncate(BaseHandler, Executor):
         self.table = table
 
     def handle(self):
-        try:
-            self._cursor.execute(
-                f"truncate {self.table} cascade"
-            )
-            self._connection.commit()
-        except Exception as e:
-            self._connection.rollback()
-            self.close()
-            self.raise_error(e)
-        finally:
-            self.close()
+        query = f"truncate {self.table} cascade"
+        super().execute(query)
+        self.close()
         return super().handle()
 
 
@@ -68,30 +57,18 @@ class AlterSequence(BaseHandler, Executor):
         self.max_value = max_value
 
     def handle(self):
-        try:
-            for table in self.tables:
-                if self.max_value:
-                    self._cursor.execute(
-                        f"alter sequence {table + '_id_seq'} as bigint start "
-                        f"with {self.cast(self.start_value, 'bigint')} "
-                        f"maxvalue {self.cast(self.max_value, 'bigint')}"
-                    )
-                else:
-                    self._cursor.execute(
-                        f"alter table {table} alter column id type bigint;"
-                        f"alter sequence {table + '_id_seq'} as bigint start with {self.start_value}"
-                    )
-                self._cursor.execute(
-                    f"alter sequence {table + '_id_seq'} restart"
-                )
-            self._connection.commit()
-
-        except Exception as e:
-            self._connection.rollback()
-            self.close()
-            self.raise_error(e)
-        finally:
-            self.close()
+        for table in self.tables:
+            if self.max_value:
+                query = f"""alter sequence {table + '_id_seq'} as bigint start
+                        with {self.cast(self.start_value, 'bigint')} 
+                        maxvalue {self.cast(self.max_value, 'bigint')}"""
+                super().execute(query)
+            else:
+                query = f"""alter table {table} alter column id type bigint;"
+                        alter sequence {table + '_id_seq'} as bigint start with {self.start_value}"""
+                super().execute(query)
+            super().execute(f"alter sequence {table + '_id_seq'} restart")
+        self.close()
         return super().handle()
 
 
@@ -102,22 +79,15 @@ class CreatePublication(BaseHandler, Executor):
         self.pubname = f'{pubdb}_{subdb}_publication'
 
     def handle(self):
-        try:
-            if len(self.tables) > 1:
-                self._cursor.execute(
-                    f"create publication {self.pubname} for table {', '.join(self.tables)}"
-                )
-            else:
-                self._cursor.execute(
-                    f"create publication {self.pubname} for table {self.tables[0]}"
-                )
-            self._connection.commit()
-        except Exception as e:
-            self._connection.rollback()
-            self.close()
-            self.raise_error(e)
-        finally:
-            self.close()
+        if len(self.tables) > 1:
+            super().execute(
+                f"create publication {self.pubname} for table {', '.join(self.tables)}"
+            )
+        else:
+            super().execute(
+                f"create publication {self.pubname} for table {self.tables[0]}"
+            )
+        self.close()
         return super().handle()
 
 
@@ -130,16 +100,10 @@ class CreateReplicationSlot(BaseHandler, Executor):
             self.slot_name = f'{pubdb}_{subdb}_slot'
 
     def handle(self):
-        try:
-            self._cursor.execute(
-                f"select pg_create_logical_replication_slot('{self.slot_name}', 'pgoutput')"
-            )
-        except Exception as e:
-            self._connection.rollback()
-            self.close()
-            self.raise_error(e)
-        finally:
-            self.close()
+        super().execute(
+            f"select pg_create_logical_replication_slot('{self.slot_name}', 'pgoutput')"
+        )
+        self.close()
         return super().handle()
 
 
@@ -158,8 +122,7 @@ class CreateSubscription(BaseHandler, Executor):
         self.pubname = pubname
 
     def handle(self):
-        try:
-            self._cursor.execute(f"""create subscription {self.subname}
+        super().execute(f"""create subscription {self.subname}
                                 connection 'host={self.sub_connection['host']}
                                 user={self.sub_connection['user']}
                                 port={self.sub_connection['port']}
@@ -167,13 +130,7 @@ class CreateSubscription(BaseHandler, Executor):
                                 password={self.sub_connection['password']}'
                                 publication {self.pubname}
                                 with (create_slot=false, slot_name='{self.slot_name}', copy_data={self.copy_data})""")
-            self._connection.commit()
-        except Exception as e:
-            self._connection.rollback()
-            self.close()
-            self.raise_error(e)
-        finally:
-            self.close()
+        self.close()
         return super().handle()
 
 
@@ -184,15 +141,8 @@ class DropTablesInPub(BaseHandler, Executor):
         self.tables = self._get_app_tables(app_name)
 
     def handle(self):
-        try:
-            self._cursor.execute(f"alter publication {self.pubname} drop table {', '.join(self.tables)}")
-            self._connection.commit()
-        except Exception as e:
-            self._connection.rollback()
-            self.close()
-            self.raise_error(e)
-        finally:
-            self.close()
+        super().execute(f"alter publication {self.pubname} drop table {', '.join(self.tables)}")
+        self.close()
         return super().handle()
 
 
@@ -203,15 +153,8 @@ class AddTablesToPub(BaseHandler, Executor):
         self.tables = self._get_app_tables(app_name)
 
     def handle(self):
-        try:
-            self._cursor.execute(f"alter publication {self.pubname} add table {', '.join(self.tables)}")
-            self._connection.commit()
-        except Exception as e:
-            self._connection.rollback()
-            self.close()
-            self.raise_error(e)
-        finally:
-            self.close()
+        super().execute(f"alter publication {self.pubname} add table {', '.join(self.tables)}")
+        self.close()
         return super().handle()
 
 
@@ -224,13 +167,20 @@ class DropSubscription(BaseHandler, Executor):
             self.subname = f'{subdb}_{pubdb}_sub'
 
     def handle(self):
-        try:
-            self._cursor.execute(f"drop subscription {self.subname}")
-            self._connection.commit()
-        except Exception as e:
-            self._connection.rollback()
-            self.close()
-            self.raise_error(e)
-        finally:
-            self.close()
+        super().execute(f"drop subscription {self.subname}")
+        self.close()
+        return super().handle()
+
+
+class DropReplicationSlot(BaseHandler, Executor):
+    def __init__(self, pubdb, subdb, option=None, **connection):
+        super().__init__(**connection)
+        if option:
+            self.slot_name = f'{pubdb}_{subdb}_{option}_slot'
+        else:
+            self.slot_name = f'{pubdb}_{subdb}_slot'
+
+    def handle(self):
+        super().execute(f"select pg_drop_replication_slot({self.slot_name})")
+        self.close()
         return super().handle()

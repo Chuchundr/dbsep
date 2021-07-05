@@ -62,8 +62,7 @@ class ReplicationSlot(models.Model):
 class SequenceRange(models.Model):
     start = models.IntegerField('Начальное значение')
     max = models.IntegerField('Конечное значение')
-    database = models.OneToOneField(DataBase, on_delete=models.CASCADE, blank=True, verbose_name='БД',
-                                 related_name='sequence')
+    database = models.CharField('БД', max_length=250, null=True, blank=True)
     number = models.PositiveIntegerField('Порядковый номер', blank=True, null=True)
 
     def __str__(self):

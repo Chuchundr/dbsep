@@ -11,7 +11,7 @@ from django import forms
 
 from .models import DataBase, ReplicationSlot
 from .forms import SeparationForm
-from .operations import ActionSet
+from .operations import ActionSet, BackupActionSet
 
 
 class MyLoginView(LoginView):
@@ -45,9 +45,11 @@ class SeparationView(FormView):
             db_name = form.cleaned_data.get('db_name')
             action_set = ActionSet(app_name=app_name, db_name=db_name)
             try:
-                action_set.execute_script()
-            except Exception:
-                tb = traceback.format_exc()
+                action_set.execute_script()  # запускаем сценарий разделения
+            except Exception:  # при возникновении ошибки
+                backup_action_set = BackupActionSet(app_name=app_name, db_name=db_name)
+                backup_action_set.backup()  # удаляем все сущности из БД, если есть
+                tb = traceback.format_exc()  # выводим трейсбэк на страницу
                 context = {'error': str(tb)}
                 return render(self.request, 'database_separator/fail.html', context)
         return redirect(self.success_url)

@@ -1,8 +1,11 @@
 import os
+import time
 from dotenv import load_dotenv
 
 from django.conf import settings
-from .models import SequenceRange
+from django.core.management import call_command
+from .executor import Executor
+from .models import SequenceRange, DataBase
 from .chain import ChangeDataType, Truncate, AlterSequence, CreatePublication, CreateReplicationSlot, \
     CreateSubscription, DropTablesInPub, AddTablesToPub, DropSubscription
 
@@ -50,14 +53,14 @@ class ActionSet:
     _sequence_range = SequenceRange.get_next_range()
 
     def __init__(self, app_name, db_name):
-
+        self.db_name = db_name
         self.vehicles_conn = connect(settings.VEHICLES_DB)
         self.main_conn = connect(settings.MAIN_DB)
         self.app_conn = connect(db_name)
 
         self.change_data_type_app = ChangeDataType(
             type='bigint',
-            fields_list= DATA_TYPE_CHANGE_TABLES,
+            fields_list=DATA_TYPE_CHANGE_TABLES,
             **self.app_conn
         )
         self.add_tables_main = AddTablesToPub(
@@ -80,11 +83,12 @@ class ActionSet:
             **self.app_conn
         )
         self.alter_sequnce_app = AlterSequence(
-            tables = SEQUENCE_CHANGE_TABLES,
+            tables=SEQUENCE_CHANGE_TABLES,
             start_value=self._sequence_range.get('start'),
             max_value=self._sequence_range.get('max'),
             **self.app_conn
         )
+
         self.create_sub_app = CreateSubscription(
             option='main',
             subdb=db_name,
@@ -130,8 +134,6 @@ class ActionSet:
             sub_connection=self.app_conn,
             **self.main_conn
         )
-
-        # Удалить и пересоздать подписки (app, vehicles, office)
         self.drop_sub_main_app = DropSubscription(
             pubdb=settings.MAIN_DB,
             subdb=db_name,
@@ -192,6 +194,11 @@ class ActionSet:
             sub_connection=self.app_conn,
             **self.main_conn
         )
+        self.add_sequence = Executor.add_sequence_range(
+            db_name=self.db_name,
+            start=self._sequence_range.get('start'),
+            max=self._sequence_range.get('max')
+        )
 
     def execute_script(self):
         self.change_data_type_app\
@@ -219,6 +226,45 @@ class ActionSet:
 
         self.change_data_type_app.handle()
 
+        time.sleep(3)
 
+        call_command('initialize')
+
+
+class BackupActionSet:
+    def __init__(self, app_name, db_name):
+        self.app_conn = connect(db_name)
+        self.main_conn = connect(settings.MAIN_DB)
+
+        self.drop_tables = DropTablesInPub(
+            pubname='office_main_publication',
+            app_name=app_name,
+            **self.main_conn
+        )
+        self.drop_sub_app_main = DropSubscription(
+            pubdb=db_name,
+            subdb=settings.MAIN_DB,
+            **self.main_conn
+        )
+        self.drop_sub_app_vehicles = DropSubscription(
+            pubdb=settings.VEHICLES_DB,
+            subdb=db_name,
+            option='cities',
+            **self.app_conn
+        )
+        self.drop_sub_main_app = DropSubscription(
+            pubdb=settings.MAIN_DB,
+            subdb=db_name,
+            option='main',
+            **self.app_conn
+        )
+
+    def backup(self):
+        self.drop_tables\
+            .set_next(self.drop_sub_app_main)\
+            .set_next(self.drop_sub_main_app)\
+            .set_next(self.drop_sub_app_vehicles)
+
+        self.drop_tables.handle()
 
 
