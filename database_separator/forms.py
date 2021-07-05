@@ -2,9 +2,8 @@ from psycopg2 import connect as pgconnect
 
 from django import forms
 
-from .operations import connect
+from .tools import connect
 from .models import DataBase
-from .operations import ActionSet
 
 
 class SeparationForm(forms.Form):

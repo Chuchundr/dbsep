@@ -4,7 +4,8 @@ from psycopg2 import extensions
 from psycopg2.errors import InFailedSqlTransaction, \
     DuplicateObject, UndefinedTable, InvalidTextRepresentation, ActiveSqlTransaction, UndefinedObject
 
-from .models import SequenceRange, DataBase
+from ..models import SequenceRange, DataBase
+
 
 class Executor:
 
