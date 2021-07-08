@@ -126,3 +126,38 @@ class Executor:
         DataBase.objects.get_or_create(name=db_name)
         number = SequenceRange.objects.order_by('number').last().number + 1
         SequenceRange.objects.create(database=db_name, start=start, max=max, number=number)
+
+    @staticmethod
+    def check_records():
+        try:
+            self._cursor.execute(
+                """select 'accounts_aduser', count(*)
+                from accounts_aduser union
+                select 'auth_group', count(*)
+                from auth_group union
+                select 'auth_user', count(*)
+                from auth_user union
+                select 'comments_commentfile', count(*)
+                from comments_commentfile union
+                select 'django_content_type', count(*)
+                from django_content_type union
+                select 'auth_user_groups', count(*)
+                from auth_user_groups union
+                select 'auth_user_user_permissions', count(*)
+                from auth_user_user_permissions union
+                select 'auth_permission', count(*)
+                from auth_permission union
+                select 'auth_group_permissions', count(*)
+                from auth_group_permissions union
+                select 'django_admin_log', count(*)
+                from django_admin_log union
+                select 'comments_comment', count(*)
+                from comments_comment;"""
+            )
+            values_dict = {}
+            for value in self._cursor.fetchall():
+                values_dict[value[0]] = value[1]
+            return values_dict
+        except Exception:
+            self._connection.rollback()
+        return None
