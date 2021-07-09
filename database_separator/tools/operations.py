@@ -205,8 +205,6 @@ class ActionSet:
 
         self.change_data_type_app.handle()
 
-        time.sleep(3)
-
         call_command('initialize')
 
     def check_replication(self):

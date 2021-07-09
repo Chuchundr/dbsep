@@ -1,5 +1,4 @@
 from .executor import Executor
-from psycopg2.errors import UndefinedObject
 
 
 class BaseHandler(Executor):
