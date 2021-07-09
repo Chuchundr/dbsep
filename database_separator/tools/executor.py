@@ -127,8 +127,7 @@ class Executor:
         number = SequenceRange.objects.order_by('number').last().number + 1
         SequenceRange.objects.create(database=db_name, start=start, max=max, number=number)
 
-    @staticmethod
-    def check_records():
+    def check_records(self):
         try:
             self._cursor.execute(
                 """select 'accounts_aduser', count(*)
@@ -157,6 +156,7 @@ class Executor:
             values_dict = {}
             for value in self._cursor.fetchall():
                 values_dict[value[0]] = value[1]
+            self.close()
             return values_dict
         except Exception:
             self._connection.rollback()

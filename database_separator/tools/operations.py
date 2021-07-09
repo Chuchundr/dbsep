@@ -1,5 +1,4 @@
 import os
-import time
 from dotenv import load_dotenv
 
 from django.conf import settings
@@ -12,6 +11,13 @@ from .chain import ChangeDataType, Truncate, AlterSequence, CreatePublication, C
 
 
 load_dotenv()
+
+
+class MyIterationError(Exception):
+    """
+    Класс ошибки в случае, если количество итераций вышло за пределы лимита
+    """
+    pass
 
 
 def connect(db_name: str) -> dict:
@@ -192,8 +198,27 @@ class ActionSet:
             .set_next(self.create_cities_sub_app)\
             .set_next(self.create_pub_app)\
             .set_next(self.create_slot_app)\
-            .set_next(self.create_sub_main)\
-            .set_next(self.drop_sub_main_app)\
+            .set_next(self.create_sub_main)
+
+        self.change_data_type_app.handle()
+
+        self.check_replication()
+
+    def check_replication(self):
+        """
+        Рекурсивный метод, проверяет, скопировались ли данные из основной базы в периферийную
+        """
+        default_db = Executor(**self.main_conn)
+        app_db = Executor(**self.app_conn)
+        try:
+            if default_db.check_records() == app_db.check_records():
+                self.continue_execution()
+            self.check_replication()
+        except Exception:
+            raise MyIterationError('Количество записей не совпадает.')
+
+    def continue_execution(self):
+        self.drop_sub_main_app\
             .set_next(self.drop_sub_main)\
             .set_next(self.drop_sub_cities_vehicles)\
             .set_next(self.create_slot_app_main)\
@@ -203,16 +228,9 @@ class ActionSet:
             .set_next(self.recreate_cities_sub_app)\
             .set_next(self.recreate_sub_main_app)
 
-        self.change_data_type_app.handle()
+        self.drop_sub_main_app.handle()
 
         call_command('initialize')
-
-    def check_replication(self):
-        default_db = Executor(**self.main_conn)
-        app_db = Executor(**self.app_conn)
-        if default_db.check_replicated_tables() == app_db.check_replicated_tables():
-            return
-        self.check_replication()
 
 
 class BackupActionSet:
