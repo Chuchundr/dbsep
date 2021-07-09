@@ -93,6 +93,30 @@ MAIN_DB = 'office'
 VEHICLES_DB = 'vehicles'
 
 
+DATA_TYPE_CHANGE_TABLES = [
+    'from_task_id',
+    'to_task_id',
+    'process_id',
+    'process_ptr_id',
+    'task_id',
+    'id',
+    'object_id',
+    'content_type_id'
+]
+
+SEQUENCE_CHANGE_TABLES = [
+    'auth_permission',
+    'django_content_type',
+    'viewflow_process',
+    'viewflow_task_previous',
+    'viewflow_task'
+]
+
+VIEWFLOW_TABLES = [
+    'viewflow_process',
+    'viewflow_task'
+]
+
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 

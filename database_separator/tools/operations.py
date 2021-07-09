@@ -13,30 +13,6 @@ from .chain import ChangeDataType, Truncate, AlterSequence, CreatePublication, C
 
 load_dotenv()
 
-DATA_TYPE_CHANGE_TABLES = [
-    'from_task_id',
-    'to_task_id',
-    'process_id',
-    'process_ptr_id',
-    'task_id',
-    'id',
-    'object_id',
-    'content_type_id'
-]
-
-SEQUENCE_CHANGE_TABLES = [
-    'auth_permission',
-    'django_content_type',
-    'viewflow_process',
-    'viewflow_task_previous',
-    'viewflow_task'
-]
-
-VIEWFLOW_TABLES = [
-    'viewflow_process',
-    'viewflow_task'
-]
-
 
 def connect(db_name: str) -> dict:
     options = {
@@ -63,7 +39,7 @@ class ActionSet:
 
         self.change_data_type_app = ChangeDataType(
             type='bigint',
-            fields_list=DATA_TYPE_CHANGE_TABLES,
+            fields_list=settings.DATA_TYPE_CHANGE_TABLES,
             **self.app_conn
         )
         self.add_tables_main = AddTablesToPub(
@@ -86,7 +62,7 @@ class ActionSet:
             **self.app_conn
         )
         self.alter_sequnce_app = AlterSequence(
-            tables=SEQUENCE_CHANGE_TABLES,
+            tables=settings.SEQUENCE_CHANGE_TABLES,
             start_value=self._sequence_range.get('start'),
             max_value=self._sequence_range.get('max'),
             **self.app_conn
@@ -120,7 +96,7 @@ class ActionSet:
             **self.app_conn
         )
         self.create_pub_app = CreatePublication(
-            tables=VIEWFLOW_TABLES,
+            tables=settings.VIEWFLOW_TABLES,
             pubdb=db_name,
             subdb=settings.MAIN_DB,
             **self.app_conn
@@ -232,6 +208,13 @@ class ActionSet:
         time.sleep(3)
 
         call_command('initialize')
+
+    def check_replication(self):
+        default_db = Executor(**self.main_conn)
+        app_db = Executor(**self.app_conn)
+        if default_db.check_replicated_tables() == app_db.check_replicated_tables():
+            return
+        self.check_replication()
 
 
 class BackupActionSet:
