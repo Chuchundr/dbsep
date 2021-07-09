@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 from django.conf import settings
@@ -7,7 +8,7 @@ from ..models import SequenceRange, DataBase
 
 from .executor import Executor
 from .chain import ChangeDataType, Truncate, AlterSequence, CreatePublication, CreateReplicationSlot, \
-    CreateSubscription, DropTablesInPub, AddTablesToPub, DropSubscription
+    CreateSubscription, DropTablesInPub, AddTablesToPub, DropSubscription, DropPublication
 
 
 load_dotenv()
@@ -115,7 +116,7 @@ class ActionSet:
         self.create_sub_main = CreateSubscription(
             subdb=settings.MAIN_DB,
             pubdb=db_name,
-            pubname=f'{app_name}_{settings.MAIN_DB}_sub',
+            pubname=f'{db_name}_{settings.MAIN_DB}_sub',
             sub_connection=self.app_conn,
             **self.main_conn
         )
@@ -175,7 +176,7 @@ class ActionSet:
             copy_data=False,
             subdb=settings.MAIN_DB,
             pubdb=db_name,
-            pubname=f'{app_name}_{settings.MAIN_DB}_publication',
+            pubname=f'{db_name}_{settings.MAIN_DB}_publication',
             sub_connection=self.app_conn,
             **self.main_conn
         )
@@ -212,10 +213,14 @@ class ActionSet:
         app_db = Executor(**self.app_conn)
         try:
             if default_db.check_records() == app_db.check_records():
-                self.continue_execution()
+                default_db.close()
+                app_db.close()
+                return self.continue_execution()
+            default_db.close()
+            app_db.close()
             self.check_replication()
-        except Exception:
-            raise MyIterationError('Количество записей не совпадает.')
+        except Exception as e:
+            raise Exception(e)
 
     def continue_execution(self):
         self.drop_sub_main_app\
@@ -238,6 +243,7 @@ class BackupActionSet:
     Сценарий отката
     """
     def __init__(self, app_name, db_name):
+        self.db_name = db_name
         self.app_conn = connect(db_name)
         self.main_conn = connect(settings.MAIN_DB)
 
@@ -263,13 +269,19 @@ class BackupActionSet:
             option='main',
             **self.app_conn
         )
+        self.drop_pub_app = DropPublication(
+            pubname=f'{db_name}_{settings.MAIN_DB}_publication',
+            **self.app_conn
+        )
 
     def backup(self):
         self.drop_tables\
             .set_next(self.drop_sub_app_main)\
             .set_next(self.drop_sub_main_app)\
-            .set_next(self.drop_sub_app_vehicles)
+            .set_next(self.drop_sub_app_vehicles) \
+            .set_next(self.drop_pub_app)
 
         self.drop_tables.handle()
+        DataBase.objects.get(name=self.db_name).delete()
 
 

@@ -6,6 +6,8 @@ from psycopg2.errors import InFailedSqlTransaction, \
 
 from ..models import SequenceRange, DataBase
 
+from .patterns import Singleton
+
 
 class Executor:
 
@@ -156,7 +158,6 @@ class Executor:
             values_dict = {}
             for value in self._cursor.fetchall():
                 values_dict[value[0]] = value[1]
-            self.close()
             return values_dict
         except Exception:
             self._connection.rollback()

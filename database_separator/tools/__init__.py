@@ -1,5 +1,5 @@
 from .executor import Executor
-from .operations import ActionSet, BackupActionSet, connect
+from .script import ActionSet, BackupActionSet, connect
 
 __all__ = (
     ActionSet,

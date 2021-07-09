@@ -184,3 +184,14 @@ class DropReplicationSlot(BaseHandler, Executor):
         super().execute(f"select pg_drop_replication_slot({self.slot_name})")
         self.close()
         return super().handle()
+
+
+class DropPublication(BaseHandler, Executor):
+    def __init__(self, pubname, **connection):
+        super().__init__(**connection)
+        self.pubname = pubname
+
+    def handle(self):
+        super().execute(f"drop publication {self.pubname}")
+        self.close()
+        return super().handle()
