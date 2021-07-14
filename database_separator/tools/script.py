@@ -180,11 +180,11 @@ class ActionSet:
             sub_connection=self.app_conn,
             **self.main_conn
         )
-        self.add_sequence = Executor.add_sequence_range(
-            db_name=self.db_name,
-            start=self._sequence_range.get('start'),
-            max=self._sequence_range.get('max')
-        )
+        # self.add_sequence = Executor.add_sequence_range(
+        #     db_name=self.db_name,
+        #     start=self._sequence_range.get('start'),
+        #     max=self._sequence_range.get('max')
+        # )
 
     def execute_script(self):
         self.change_data_type_app\
