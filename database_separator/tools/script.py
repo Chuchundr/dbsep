@@ -180,11 +180,11 @@ class ActionSet:
             sub_connection=self.app_conn,
             **self.main_conn
         )
-        # self.add_sequence = Executor.add_sequence_range(
-        #     db_name=self.db_name,
-        #     start=self._sequence_range.get('start'),
-        #     max=self._sequence_range.get('max')
-        # )
+        self.add_sequence = Executor.add_sequence_range(
+            db_name=self.db_name,
+            start=self._sequence_range.get('start'),
+            max=self._sequence_range.get('max')
+        )
 
     def execute_script(self):
         self.change_data_type_app\
@@ -231,7 +231,8 @@ class ActionSet:
             .set_next(self.create_slot_vehicles_app)\
             .set_next(self.recreate_sub_app_main)\
             .set_next(self.recreate_cities_sub_app)\
-            .set_next(self.recreate_sub_main_app)
+            .set_next(self.recreate_sub_main_app)\
+            .set_next(self.add_sequence)
 
         self.drop_sub_main_app.handle()
 
