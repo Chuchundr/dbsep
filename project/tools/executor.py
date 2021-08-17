@@ -1,12 +1,24 @@
+import os
 import psycopg2
 import logging
 from psycopg2 import extensions
 from psycopg2.errors import InFailedSqlTransaction, \
     DuplicateObject, UndefinedTable, InvalidTextRepresentation, ActiveSqlTransaction, UndefinedObject
 
-from ..models import SequenceRange, DataBase
+from database_separator.models import SequenceRange, DataBase
 
 from .patterns import Singleton
+
+
+def connect(db_name: str) -> dict:
+    options = {
+            'user': os.getenv('DATABASE_USERNAME'),
+            'port': os.getenv('DATABASE_PORT'),
+            'host': os.getenv('DATABASE_HOST'),
+            'database': db_name,
+            'password': os.getenv('DATABASE_PASSWORD')
+        }
+    return options
 
 
 class Executor:
@@ -161,4 +173,4 @@ class Executor:
             return values_dict
         except Exception:
             self._connection.rollback()
-        return None
+        return

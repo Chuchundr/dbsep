@@ -11,7 +11,7 @@ from django import forms
 
 from .models import DataBase, ReplicationSlot
 from .forms import SeparationForm
-from .tools import ActionSet, BackupActionSet
+from .script import ActionSet, BackupActionSet
 
 
 class MyLoginView(LoginView):

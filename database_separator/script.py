@@ -4,10 +4,10 @@ from dotenv import load_dotenv
 
 from django.conf import settings
 from django.core.management import call_command
-from ..models import SequenceRange, DataBase
+from .models import SequenceRange, DataBase
 
-from .executor import Executor
-from .chain import ChangeDataType, Truncate, AlterSequence, CreatePublication, CreateReplicationSlot, \
+from project.tools.executor import Executor, connect
+from project.tools.chain import ChangeDataType, Truncate, AlterSequence, CreatePublication, CreateReplicationSlot, \
     CreateSubscription, DropTablesInPub, AddTablesToPub, DropSubscription, DropPublication
 
 
@@ -19,17 +19,6 @@ class MyIterationError(Exception):
     Класс ошибки в случае, если количество итераций вышло за пределы лимита
     """
     pass
-
-
-def connect(db_name: str) -> dict:
-    options = {
-            'user': os.getenv('DATABASE_USERNAME'),
-            'port': os.getenv('DATABASE_PORT'),
-            'host': os.getenv('DATABASE_HOST'),
-            'database': db_name,
-            'password': os.getenv('DATABASE_PASSWORD')
-        }
-    return options
 
 
 class ActionSet:
@@ -88,20 +77,7 @@ class ActionSet:
             app_name=app_name,
             **self.main_conn
         )
-        self.create_slot_vehicles = CreateReplicationSlot(
-            pubdb=settings.VEHICLES_DB,
-            subdb=db_name,
-            option='cities',
-            **self.vehicles_conn
-        )
-        self.create_cities_sub_app = CreateSubscription(
-            subdb=db_name,
-            pubdb=settings.VEHICLES_DB,
-            pubname='vehicles_cities_publication',
-            option='cities',
-            sub_connection=self.vehicles_conn,
-            **self.app_conn
-        )
+        
         self.create_pub_app = CreatePublication(
             tables=settings.VIEWFLOW_TABLES,
             pubdb=db_name,
@@ -131,12 +107,7 @@ class ActionSet:
             subdb=settings.MAIN_DB,
             **self.main_conn
         )
-        self.drop_sub_cities_vehicles = DropSubscription(
-            pubdb=settings.VEHICLES_DB,
-            subdb=db_name,
-            option='cities',
-            **self.app_conn
-        )
+
         self.create_slot_app_main = CreateReplicationSlot(
             pubdb=settings.MAIN_DB,
             subdb=db_name,
@@ -148,12 +119,7 @@ class ActionSet:
             subdb=settings.MAIN_DB,
             **self.app_conn
         )
-        self.create_slot_vehicles_app = CreateReplicationSlot(
-            pubdb=settings.VEHICLES_DB,
-            subdb=db_name,
-            option='cities',
-            **self.vehicles_conn
-        )
+
         self.recreate_sub_app_main = CreateSubscription(
             copy_data=False,
             option='main',
@@ -163,15 +129,7 @@ class ActionSet:
             sub_connection=self.main_conn,
             **self.app_conn
         )
-        self.recreate_cities_sub_app = CreateSubscription(
-            copy_data=False,
-            subdb=db_name,
-            pubdb=settings.VEHICLES_DB,
-            pubname='vehicles_cities_publication',
-            option='cities',
-            sub_connection=self.vehicles_conn,
-            **self.app_conn
-        )
+
         self.recreate_sub_main_app = CreateSubscription(
             copy_data=False,
             subdb=settings.MAIN_DB,
@@ -195,8 +153,6 @@ class ActionSet:
             .set_next(self.alter_sequnce_app)\
             .set_next(self.create_sub_app)\
             .set_next(self.drop_tables_main)\
-            .set_next(self.create_slot_vehicles)\
-            .set_next(self.create_cities_sub_app)\
             .set_next(self.create_pub_app)\
             .set_next(self.create_slot_app)\
             .set_next(self.create_sub_main)
@@ -225,12 +181,9 @@ class ActionSet:
     def continue_execution(self):
         self.drop_sub_main_app\
             .set_next(self.drop_sub_main)\
-            .set_next(self.drop_sub_cities_vehicles)\
             .set_next(self.create_slot_app_main)\
             .set_next(self.create_slot_main_app)\
-            .set_next(self.create_slot_vehicles_app)\
             .set_next(self.recreate_sub_app_main)\
-            .set_next(self.recreate_cities_sub_app)\
             .set_next(self.recreate_sub_main_app)\
             .set_next(self.add_sequence)
 
@@ -258,12 +211,12 @@ class BackupActionSet:
             subdb=settings.MAIN_DB,
             **self.main_conn
         )
-        self.drop_sub_app_vehicles = DropSubscription(
-            pubdb=settings.VEHICLES_DB,
-            subdb=db_name,
-            option='cities',
-            **self.app_conn
-        )
+        # self.drop_sub_app_vehicles = DropSubscription(
+        #     pubdb=settings.VEHICLES_DB,
+        #     subdb=db_name,
+        #     option='cities',
+        #     **self.app_conn
+        # )
         self.drop_sub_main_app = DropSubscription(
             pubdb=settings.MAIN_DB,
             subdb=db_name,
