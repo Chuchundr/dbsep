@@ -2,7 +2,7 @@ from psycopg2 import connect as pgconnect
 
 from django import forms
 
-from .script import connect
+from .scripts.separation import connect
 from .models import DataBase
 
 

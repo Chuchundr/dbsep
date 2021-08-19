@@ -75,9 +75,14 @@ class Command(BaseCommand):
         subs_dict = dict()
         dbs = self.get_databases()
         query = "select subname from pg_subscription"
-        subs = [slot[0] for slot in self.execute_query(query)]
+        subs = [sub[0] for sub in self.execute_query(query)]
         for db in dbs:
-            subs_dict[db] = [sub for sub in subs if re.search(f'^{db}', sub)]  # если слот начинается с имени базы
+            subs_dict[db] = []
+            for sub in subs:
+                if re.search(f'^{db}', sub):
+                    db_to = sub.split('_')[1]
+                    subs_dict[db].append({'subname': sub, 'db_to': db_to})
+            # subs_dict[db] = [sub for sub in subs if re.search(f'^{db}', sub)]  # если подписка начинается с имени базы
         return subs_dict
 
     def get_replication_slots(self):
@@ -107,10 +112,13 @@ class Command(BaseCommand):
         for db, subs in subs.items():
             for sub in subs:
                 try:
-                    models.Subscription.objects.update_or_create(
-                        name=sub,
+                    db_to=models.DataBase.objects.get(name=sub['db_to'])
+                    my_sub = models.Subscription.objects.get_or_create(
+                        name=sub['subname'],
                         database=models.DataBase.objects.get(name=db)
                     )
+                    my_sub[0].to_database = db_to
+                    my_sub[0].save()
                 except ObjectDoesNotExist:
                     pass
 
