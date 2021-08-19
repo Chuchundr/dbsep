@@ -7,7 +7,7 @@ from django.db import connection
 from django.db.utils import DatabaseError
 from django.core.exceptions import ObjectDoesNotExist
 
-from database_separator.tools import Executor
+from project.tools import Executor
 from database_separator import models
 
 

@@ -29,7 +29,6 @@ class ActionSet:
 
     def __init__(self, app_name, db_name):
         self.db_name = db_name
-        self.vehicles_conn = connect(settings.VEHICLES_DB)
         self.main_conn = connect(settings.MAIN_DB)
         self.app_conn = connect(db_name)
 
@@ -211,12 +210,6 @@ class BackupActionSet:
             subdb=settings.MAIN_DB,
             **self.main_conn
         )
-        # self.drop_sub_app_vehicles = DropSubscription(
-        #     pubdb=settings.VEHICLES_DB,
-        #     subdb=db_name,
-        #     option='cities',
-        #     **self.app_conn
-        # )
         self.drop_sub_main_app = DropSubscription(
             pubdb=settings.MAIN_DB,
             subdb=db_name,
@@ -232,7 +225,6 @@ class BackupActionSet:
         self.drop_tables\
             .set_next(self.drop_sub_app_main)\
             .set_next(self.drop_sub_main_app)\
-            .set_next(self.drop_sub_app_vehicles) \
             .set_next(self.drop_pub_app)
 
         self.drop_tables.handle()
