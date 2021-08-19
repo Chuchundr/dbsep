@@ -36,6 +36,8 @@ class PubTables(models.Model):
 class Subscription(models.Model):
     database = models.ForeignKey(DataBase, on_delete=models.CASCADE, verbose_name='БД', related_name='subscriptions')
     name = models.CharField('Название подписки', max_length=250)
+    to_database = models.ForeignKey(DataBase, on_delete=models.CASCADE, verbose_name='к БД', related_name='sub_to_me',
+                                    null=True)
 
     def __str__(self):
         return self.name

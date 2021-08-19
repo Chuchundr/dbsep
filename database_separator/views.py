@@ -4,14 +4,16 @@ from psycopg2.errors import InFailedSqlTransaction
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.views import LoginView
+from django.core.management import call_command
 from django.views.generic import ListView, TemplateView, DetailView, FormView
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.db.utils import OperationalError
 from django import forms
 
 from .models import DataBase, ReplicationSlot
 from .forms import SeparationForm
-from .script import ActionSet, BackupActionSet
+from .scripts.separation import ActionSet, BackupActionSet
 
 
 class MyLoginView(LoginView):
@@ -73,3 +75,8 @@ class CheckView(TemplateView):
     Вспомогательная вьюшка для проверки выполнения предварительных действий
     """
     template_name = 'database_separator/check.html'
+
+
+def initialize(request):
+    call_command('initialize')
+    return HttpResponseRedirect(reverse_lazy('index'))

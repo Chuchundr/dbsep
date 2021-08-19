@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 from django.conf import settings
 from django.core.management import call_command
-from .models import SequenceRange, DataBase
+from ..models import SequenceRange, DataBase
 
 from project.tools.executor import Executor, connect
 from project.tools.chain import ChangeDataType, Truncate, AlterSequence, CreatePublication, CreateReplicationSlot, \
