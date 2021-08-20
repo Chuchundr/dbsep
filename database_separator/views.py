@@ -14,6 +14,7 @@ from django import forms
 from .models import DataBase, ReplicationSlot
 from .forms import SeparationForm
 from .scripts.separation import ActionSet, BackupActionSet
+from .scripts.relaunch import ActionSetForRelaunch
 
 
 class MyLoginView(LoginView):
@@ -77,6 +78,19 @@ class CheckView(TemplateView):
     template_name = 'database_separator/check.html'
 
 
+class AdditionalFunctionalityView(TemplateView):
+    """
+    Вьюшка для дополнительных функций
+    """
+    template_name = 'database_separator/additional.html'
+
+
 def initialize(request):
     call_command('initialize')
+    return HttpResponseRedirect(reverse_lazy('index'))
+
+
+def replication_relaunch(request):
+    action_set = ActionSetForRelaunch()
+    action_set.execute_script()
     return HttpResponseRedirect(reverse_lazy('index'))
