@@ -17,7 +17,7 @@ class ActionSetForRelaunch:
             subdb = db.name
             for d in db.subscriptions.all():
                 pubname = 'office_main_publication' if subdb != 'office' \
-                    else f'{subdb}_{d.to_database.name}_publication'
+                    else f'{d.to_database.name}_{subdb}_publication'
                 drop_sub = DropSubscription(
                     subdb=subdb,
                     pubdb=d.to_database.name,

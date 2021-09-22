@@ -14,11 +14,11 @@ from project.tools.chain import ChangeDataType, Truncate, AlterSequence, CreateP
 load_dotenv()
 
 
-class MyIterationError(Exception):
-    """
-    Класс ошибки в случае, если количество итераций вышло за пределы лимита
-    """
-    pass
+# class MyIterationError(Exception):
+#     """
+#     Класс ошибки в случае, если количество итераций вышло за пределы лимита
+#     """
+#     pass
 
 
 class ActionSet:
