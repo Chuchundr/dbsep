@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from project.tools.executor import Executor, connect
 from project.tools.patterns import Singleton
-from project.tools.chain import CreateSubscription, DropSubscription, CreateReplicationSlot
+from project.tools.chain import CreateSubscription, DropSubscription, CreateReplicationSlot, SetSlotNone
 from database_separator.models import DataBase, Subscription, ReplicationSlot
 
 
@@ -18,6 +18,12 @@ class ActionSetForRelaunch:
             for d in db.subscriptions.all():
                 pubname = 'office_main_publication' if subdb != 'office' \
                     else f'{d.to_database.name}_{subdb}_publication'
+                set_slot_none = SetSlotNone(
+                    subdb=subdb,
+                    pubdb=d.to_database.name,
+                    option='main' if subdb != 'office' else None,
+                    **connect(subdb)
+                )
                 drop_sub = DropSubscription(
                     subdb=subdb,
                     pubdb=d.to_database.name,
@@ -40,6 +46,6 @@ class ActionSetForRelaunch:
                     **connect(d.to_database.name)
                 )
 
-                drop_sub.set_next(create_sub).set_next(create_slots)
+                set_slot_none.set_next(drop_sub).set_next(create_sub).set_next(create_slots)
 
-                drop_sub.handle()
+                set_slot_none.handle()
