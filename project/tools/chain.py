@@ -195,3 +195,18 @@ class DropPublication(BaseHandler, Executor):
         super().execute(f"drop publication {self.pubname}")
         self.close()
         return super().handle()
+
+
+class SetSlotNone(BaseHandler, Executor):
+    def __init__(self, subdb, pubdb, option=None, **connection):
+        super().__init__(**connection)
+        if option:
+            self.subname = f'{subdb}_{pubdb}_{option}_sub'
+        else:
+            self.subname = f'{subdb}_{pubdb}_sub'
+
+    def handle(self):
+        super().execute(f'alter subscription {self.subname} disable;'
+                        f'alter subscription {self.subname} set (slot_name=None)')
+        self.close()
+        return super().handle()
