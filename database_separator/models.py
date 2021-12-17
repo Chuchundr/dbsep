@@ -83,3 +83,12 @@ class SequenceRange(models.Model):
     class Meta:
         verbose_name = 'Диапазон для БД'
         verbose_name_plural = 'Диапазоны для БД'
+
+
+class CheckSum(models.Model):
+    checksum = models.IntegerField('Контрольная сумма')
+    date = models.DateTimeField('Время добавления', auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Контрольная сумма'
+        verbose_name_plural = 'Контрольные суммы'

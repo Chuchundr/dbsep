@@ -7,8 +7,6 @@ from psycopg2.errors import InFailedSqlTransaction, \
 
 from database_separator.models import SequenceRange, DataBase
 
-from .patterns import Singleton
-
 
 def connect(db_name: str) -> dict:
     options = {
@@ -49,6 +47,7 @@ class Executor:
             self.close()
         else:
             self._connection.commit()
+        return self._cursor.fetchall()
 
     def raise_error(self, error: Exception):
         """
@@ -93,6 +92,18 @@ class Executor:
             else:
                 types_dict[rec[0]] = [rec[1], ]
         return types_dict
+
+    def get_tables(self) -> list:
+        """
+        Возвращает список со всеми таблицами в базе
+        :return:
+        """
+        self._cursor.execute(
+            "select table_name from information_schema.tables where table_schema = 'public' "
+            "and table_type = 'BASE TABLE'"
+        )
+        tables = [table[0] for table in self._cursor.fetchall()]
+        return tables
 
     def _get_next_id_value(self, app: str) -> dict:
         """
