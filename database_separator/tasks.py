@@ -4,8 +4,8 @@ from django.core.mail import mail_admins
 from email.header import Header
 
 from project.celery import app
-from project.tools.executor import Executor, connect
 from database_separator import models
+from database_separator.scripts.checksums import save_check_sums
 
 
 @app.task(bind=True)
@@ -29,16 +29,5 @@ def check_replication_slots(self):
 
 
 @app.task(bind=True)
-def save_check_sums():
-    count_general = 0
-    count_db = 0
-    count_tables = 0
-    for db in models.DataBase.objects.all():
-        connection = connect(db.name)
-        database = Executor(**connection)
-        tables = database.get_tables()
-        for table in tables:
-            count_tables += database.execute(f"select count(*) from {table}")[0][0]
-        count_db += count_tables
-    count_general += count_db
-    models.CheckSum.objects.create(checksum=count_general)
+def checksum_task(self):
+    save_check_sums()

@@ -11,6 +11,7 @@ from .models import DataBase, ReplicationSlot, CheckSum
 from .forms import SeparationForm
 from .scripts.separation import ActionSet, BackupActionSet
 from .scripts.relaunch import ActionSetForRelaunch
+from .scripts.checksums import save_check_sums
 
 
 class MyLoginView(LoginView):
@@ -101,3 +102,8 @@ def replication_relaunch(request):
     action_set = ActionSetForRelaunch()
     action_set.execute_script()
     return HttpResponseRedirect(reverse_lazy('index'))
+
+
+def checksums(request):
+    save_check_sums()
+    return HttpResponseRedirect(reverse_lazy('database_separator:checksums'))

@@ -19,7 +19,13 @@
                     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal">
                         Перезапуск репликации
                     </button>
+                </p>
 
+                <p>
+                    <a class="btn btn-slack" href="{% url 'database_separator:save_checksums' %}">
+                        <span class="nav-link-text">Создать контрольную сумму</span>
+                    </a>
+                </p>
                     <!-- Modal -->
                 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
                      aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -44,7 +50,6 @@
                     </div>
                 </div>
 
-                </p>
             </div>
         </div>
     </div>
