@@ -1,14 +1,15 @@
 from django.urls import path
 from django.contrib.auth.decorators import login_required
 
-from .views import DataBaseDetailView, SeparationView, CheckView, AdditionalFunctionalityView, initialize, \
-    replication_relaunch
+from .views import DataBaseDetailView, SeparationView, CheckView, AdditionalFunctionalityView, CheckSumsView, \
+    initialize, replication_relaunch
 
 
 app_name = 'database_separator'
 
 urlpatterns = [
     path('database/<int:pk>', login_required(DataBaseDetailView.as_view()), name='db'),
+    path('checksums', login_required(CheckSumsView.as_view()), name='checksums'),
     path('separate', login_required(SeparationView.as_view()), name='separate'),
     path('check/', login_required(CheckView.as_view()), name='check'),
     path('additional', login_required(AdditionalFunctionalityView.as_view()), name='additional'),

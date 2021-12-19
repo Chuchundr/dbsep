@@ -1,17 +1,13 @@
 import traceback
 
-from psycopg2.errors import InFailedSqlTransaction
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.views import LoginView
 from django.core.management import call_command
 from django.views.generic import ListView, TemplateView, DetailView, FormView
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.db.utils import OperationalError
-from django import forms
 
-from .models import DataBase, ReplicationSlot
+from .models import DataBase, ReplicationSlot, CheckSum
 from .forms import SeparationForm
 from .scripts.separation import ActionSet, BackupActionSet
 from .scripts.relaunch import ActionSetForRelaunch
@@ -83,6 +79,17 @@ class AdditionalFunctionalityView(TemplateView):
     Вьюшка для дополнительных функций
     """
     template_name = 'database_separator/additional.html'
+
+
+class CheckSumsView(ListView):
+    """
+    Вьюшка для отображения контрольных сумм
+    """
+    model = CheckSum
+    paginate_by = 10
+
+    def get_queryset(self):
+        return CheckSum.objects.all()
 
 
 def initialize(request):
