@@ -19,7 +19,7 @@ app.conf.beat_schedule = {
         'task': 'database_separator.tasks.check_replication_slots',
         'schedule': 300.0
     },
-    'add_check_sums': {
+    'checksum_task': {
         'task': 'database_separator.tasks.add_check_sums',
         'schedule': crontab(hour=3)
     }
