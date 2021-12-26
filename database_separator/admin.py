@@ -1,10 +1,14 @@
 from django.contrib import admin
-from .models import DataBase, Publication, Subscription, ReplicationSlot, PubTables, SequenceRange
+from .models import DataBase, Publication, Subscription, ReplicationSlot, PubTables, SequenceRange, CheckSum
 
 
 class TablesTabularInline(admin.TabularInline):
     model = PubTables
     extra = 0
+
+@admin.register(CheckSum)
+class CheckSumAdmin(admin.ModelAdmin):
+    list_display = ['checksum', 'date']
 
 
 @admin.register(SequenceRange)

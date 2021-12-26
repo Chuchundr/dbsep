@@ -5,6 +5,7 @@ from email.header import Header
 
 from project.celery import app
 from database_separator import models
+from database_separator.scripts.checksums import save_check_sums
 
 
 @app.task(bind=True)
@@ -25,3 +26,8 @@ def check_replication_slots(self):
         slots = [', '.join(key) for key in inactive_slots] if len(inactive_slots) > 1 else inactive_slots[0]
         message = f"Обнаружены неактивные слоты: \n {slots}"
         mail_admins(subject, message)
+
+
+@app.task(bind=True)
+def checksum_task(self):
+    save_check_sums()

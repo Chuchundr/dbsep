@@ -1,20 +1,17 @@
 import traceback
 
-from psycopg2.errors import InFailedSqlTransaction
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.views import LoginView
 from django.core.management import call_command
 from django.views.generic import ListView, TemplateView, DetailView, FormView
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.db.utils import OperationalError
-from django import forms
 
-from .models import DataBase, ReplicationSlot
+from .models import DataBase, ReplicationSlot, CheckSum
 from .forms import SeparationForm
 from .scripts.separation import ActionSet, BackupActionSet
 from .scripts.relaunch import ActionSetForRelaunch
+from .scripts.checksums import save_check_sums
 
 
 class MyLoginView(LoginView):
@@ -85,6 +82,17 @@ class AdditionalFunctionalityView(TemplateView):
     template_name = 'database_separator/additional.html'
 
 
+class CheckSumsView(ListView):
+    """
+    Вьюшка для отображения контрольных сумм
+    """
+    model = CheckSum
+    paginate_by = 10
+
+    def get_queryset(self):
+        return CheckSum.objects.all()
+
+
 def initialize(request):
     call_command('initialize')
     return HttpResponseRedirect(reverse_lazy('index'))
@@ -94,3 +102,8 @@ def replication_relaunch(request):
     action_set = ActionSetForRelaunch()
     action_set.execute_script()
     return HttpResponseRedirect(reverse_lazy('index'))
+
+
+def checksums(request):
+    save_check_sums()
+    return HttpResponseRedirect(reverse_lazy('database_separator:checksums'))

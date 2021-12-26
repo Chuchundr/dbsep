@@ -14,6 +14,12 @@
                 <!-- Nav items -->
                 <ul class="navbar-nav">
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'database_separator:checksums' %}">
+                            <i class="ni ni-archive-2"></i>
+                            <span class="nav-link-text">Контрольные суммы</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'database_separator:check' %}">
                             <i class="ni ni-scissors text-default"></i>
                             <span class="nav-link-text">Разделить</span>
@@ -25,18 +31,6 @@
                             <span class="nav-link-text">Дополнительный функционал</span>
                         </a>
                     </li>
-<!--                    <li class="nav-item">-->
-<!--                        <a class="nav-link" href="{% url 'database_separator:initialize' %}">-->
-<!--                            <i class="ni ni-sound-wave"></i>-->
-<!--                            <span class="nav-link-text">Инициализация</span>-->
-<!--                        </a>-->
-<!--                    </li>-->
-<!--                    <li class="nav-item">-->
-<!--                        <a class="nav-link" href="#">-->
-<!--                            <i class="fas fa-sync"></i>-->
-<!--                            <span class="nav-link-text">Перезапустить репликацию</span>-->
-<!--                        </a>-->
-<!--                    </li>-->
                 </ul>
             </div>
         </div>
