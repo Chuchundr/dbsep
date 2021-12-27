@@ -20,7 +20,7 @@ app.conf.beat_schedule = {
         'schedule': 300.0
     },
     'checksum_task': {
-        'task': 'database_separator.tasks.add_check_sums',
+        'task': 'database_separator.tasks.checksum_task',
         'schedule': crontab(hour=3)
     }
 }
