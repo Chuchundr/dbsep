@@ -62,7 +62,6 @@ class AlterSequence(BaseHandler, Executor):
                 query = f"""alter sequence {table + '_id_seq'} as bigint start
                         with {self.cast(self.start_value, 'bigint')} 
                         maxvalue {self.cast(self.max_value, 'bigint')}"""
-                breakpoint()
                 super().execute(query)
             else:
                 query = f"""alter table {table} alter column id type bigint;"

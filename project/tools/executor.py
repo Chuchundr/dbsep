@@ -47,7 +47,6 @@ class Executor:
             self.close()
         else:
             self._connection.commit()
-        return self._cursor.fetchall()
 
     def raise_error(self, error: Exception):
         """
