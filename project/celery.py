@@ -21,6 +21,6 @@ app.conf.beat_schedule = {
     },
     'checksum_task': {
         'task': 'database_separator.tasks.checksum_task',
-        'schedule': crontab(hour=3)
+        'schedule': crontab(hour=3, minute=0)
     }
 }
