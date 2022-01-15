@@ -1,3 +1,5 @@
+from typing import NoReturn, Optional, List, Any
+
 import os
 import psycopg2
 import logging
@@ -30,7 +32,7 @@ class Executor:
         self._connection.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT)
         self._cursor = self._connection.cursor()
 
-    def execute(self, query: str):
+    def execute(self, query: str) -> NoReturn:
         """
         функция для выполнения запросов
         :param query: запрос
@@ -47,6 +49,19 @@ class Executor:
             self.close()
         else:
             self._connection.commit()
+
+    def select(self, query: str) -> Optional[List[Any]]:
+        try:
+            self._cursor.execute(query)
+        except UndefinedObject:
+            pass
+        except DuplicateObject:
+            pass
+        except Exception as e:
+            self._connection.rollback()
+            self.raise_error(e)
+            self.close()
+        return self._cursor.fetchall()
 
     def raise_error(self, error: Exception):
         """

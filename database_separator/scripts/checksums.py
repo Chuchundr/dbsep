@@ -11,7 +11,7 @@ def save_check_sums():
         database = Executor(**connection)
         tables = database.get_tables()
         for table in tables:
-            count_tables += database.execute(f"select count(*) from {table}")[0][0]
+            count_tables += database.select(f"select count(*) from {table}")[0][0]
         count_db += count_tables
     count_general += count_db
     models.CheckSum.objects.create(checksum=count_general)

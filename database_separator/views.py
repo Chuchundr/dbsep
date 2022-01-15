@@ -90,7 +90,7 @@ class CheckSumsView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return CheckSum.objects.all()
+        return CheckSum.objects.all().order_by('-date')
 
 
 def initialize(request):
